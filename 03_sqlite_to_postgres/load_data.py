@@ -63,38 +63,43 @@ class PostgresSaver:
             )
 
 
-def load_from_sqlite(sqlite_conn: sqlite3.Connection, pg_conn: _connection):
+def load_records_from_table(
+    loader: SQLiteLoader, saver: PostgresSaver, table: str, query_select, query_insert
+):
+    """Миграция записей одной таблицы."""
+
+    records = loader.load_records(table, query_select)
+    saver.save_all_data(table, query_insert, records)
+
+
+def load_records_from_db(sqlite_conn: sqlite3.Connection, pg_conn: _connection):
     """Основной метод загрузки данных из SQLite в Postgres"""
 
-    postgres_saver = PostgresSaver(pg_conn)
+    pg_saver = PostgresSaver(pg_conn)
     sqlite_loader = SQLiteLoader(sqlite_conn)
 
-    # 1 - film_work
-    film_works = sqlite_loader.load_records('film_work', querys.select_film_work)
-    postgres_saver.save_all_data('film_work', querys.insert_film_work, film_works)
-
-    # 2 - genre
-    genres = sqlite_loader.load_records('genre', querys.select_genre)
-    postgres_saver.save_all_data('genre', querys.insert_genre, genres)
-
-    # 3 - genre_film_work
-    genre_film_works = sqlite_loader.load_records(
-        'genre_film_work', querys.select_genre_film_work
+    load_records_from_table(
+        sqlite_loader, pg_saver, 'film_work', querys.select_film_work, querys.insert_film_work
     )
-    postgres_saver.save_all_data(
-        'genre_film_work', querys.insert_genre_film_work, genre_film_works
+    load_records_from_table(
+        sqlite_loader, pg_saver, 'genre', querys.select_genre, querys.insert_genre
     )
-
-    # 4 - person
-    persons = sqlite_loader.load_records('person', querys.select_person)
-    postgres_saver.save_all_data('person', querys.insert_person, persons)
-
-    # 5 - person_film_work
-    person_film_works = sqlite_loader.load_records(
-        'person_film_work', querys.select_person_film_work
+    load_records_from_table(
+        sqlite_loader,
+        pg_saver,
+        'genre_film_work',
+        querys.select_genre_film_work,
+        querys.insert_genre_film_work,
     )
-    postgres_saver.save_all_data(
-        'person_film_work', querys.insert_person_film_work, person_film_works
+    load_records_from_table(
+        sqlite_loader, pg_saver, 'person', querys.select_person, querys.insert_person
+    )
+    load_records_from_table(
+        sqlite_loader,
+        pg_saver,
+        'person_film_work',
+        querys.select_person_film_work,
+        querys.insert_person_film_work,
     )
 
 
@@ -110,5 +115,5 @@ if __name__ == '__main__':
     with sqlite3.connect('db.sqlite') as sqlite_conn, psycopg2.connect(
         **dsl, cursor_factory=DictCursor
     ) as pg_conn:
-        load_from_sqlite(sqlite_conn, pg_conn)
+        load_records_from_db(sqlite_conn, pg_conn)
         sqlite_conn.close()
