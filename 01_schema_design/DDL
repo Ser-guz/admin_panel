@@ -1,0 +1,53 @@
+-- DROP SCHEMA "content";
+
+CREATE SCHEMA "content" AUTHORIZATION app;
+-- "content".film_work definition
+
+-- Drop table
+
+-- DROP TABLE "content".film_work;
+
+CREATE TABLE "content".film_work (
+	id uuid NOT NULL,
+	title text NOT NULL,
+	description text NULL,
+	creation_date date NULL,
+	rating float8 NULL,
+	"type" text NOT NULL,
+	created timestamptz NULL,
+	modified timestamptz NULL,
+	CONSTRAINT film_work_pkey PRIMARY KEY (id)
+);
+CREATE INDEX film_work_creation_date_idx ON content.film_work USING btree (creation_date);
+
+
+-- "content".person definition
+
+-- Drop table
+
+-- DROP TABLE "content".person;
+
+CREATE TABLE "content".person (
+	id uuid NOT NULL,
+	full_name text NOT NULL,
+	created timestamptz NULL,
+	modified timestamptz NULL,
+	CONSTRAINT person_pkey PRIMARY KEY (id)
+);
+
+
+-- "content".person_film_work definition
+
+-- Drop table
+
+-- DROP TABLE "content".person_film_work;
+
+CREATE TABLE "content".person_film_work (
+	id uuid NOT NULL,
+	film_work_id uuid NOT NULL,
+	person_id uuid NOT NULL,
+	"role" text NOT NULL,
+	created timestamptz NULL,
+	CONSTRAINT person_film_work_pkey PRIMARY KEY (id)
+);
+CREATE UNIQUE INDEX film_work_person_idx ON content.person_film_work USING btree (film_work_id, person_id);

@@ -19,6 +19,16 @@ insert_film_work = """INSERT INTO content.film_work
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT DO NOTHING """
 
+pg_select_film_work = """SELECT
+                       id, 
+                       title,
+                       description,
+                       rating,
+                       "type",
+                       created,
+                       modified
+                   FROM content.film_work"""
+
 select_genre = """SELECT 
                     id, 
                     name, 
@@ -35,6 +45,14 @@ insert_genre = """INSERT INTO content.genre
                     modified)
                 VALUES (%s, %s, %s, %s, %s)
                 ON CONFLICT DO NOTHING"""
+
+pg_select_genre = """SELECT  
+                        id, 
+                        name, 
+                        description,
+                        created,
+                        modified
+                    FROM content.genre"""
 
 select_person = """SELECT 
                     id, 

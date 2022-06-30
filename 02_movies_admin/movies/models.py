@@ -32,7 +32,7 @@ class Genre(TimeStampedMixin, UUIDMixin):
     """Жанры фильмов: приключения, фантастика, боевик и т.д."""
 
     name = models.CharField(_('name'), max_length=255)
-    description = models.TextField(_('description'), blank=True)
+    description = models.TextField(_('description'), blank=True, null=True)
 
     class Meta:
         db_table = "content\".\"genre"
@@ -47,23 +47,22 @@ class Filmwork(TimeStampedMixin, UUIDMixin):
     """Фильм"""
 
     title = models.CharField(_('title'), max_length=255)
-    description = models.TextField(_('description'), blank=True)
-    creation_date = models.DateField(_('creation_date'))
+    description = models.TextField(_('description'), blank=True, null=True)
+    creation_date = models.DateField(_('creation_date'), null=True)
     rating = models.FloatField(
         _('rating'),
         validators=[
             MinValueValidator(0),
             MaxValueValidator(100)
         ],
-        default=3.5)
+        default=3.5,
+        null=True)
     TYPE_CHOICE = (
         ('movies', 'movies'),
         ('tv_show', 'tv_show')
     )
     type = models.CharField(_("type"), max_length=15, choices=TYPE_CHOICE, default="movies")
     genre = models.ManyToManyField(Genre, through=GenreFilmwork, verbose_name=_("genre"))
-    certificate = models.CharField(_("certificate"), max_length=512, blank=True)
-    file_path = models.FileField(_("file"), blank=True, null=True, upload_to='movies/')
 
     class Meta:
         db_table = "content\".\"film_work"
@@ -77,7 +76,7 @@ class Filmwork(TimeStampedMixin, UUIDMixin):
 class Person(UUIDMixin, TimeStampedMixin):
     """Актер или режиссер"""
 
-    full_name = models.CharField(_("name"), max_length=30)
+    full_name = models.CharField(_("name"), max_length=100)
 
     class Meta:
         db_table = "content\".\"person"
